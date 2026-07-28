@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumidev Studio Record</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800&display=swap');
 
         * {
             margin: 0;
@@ -23,7 +25,6 @@
             position: relative;
         }
 
-        /* Polymorphism Background - Dynamic Geometric Shapes */
         .bg-shapes {
             position: fixed;
             top: 0;
@@ -111,13 +112,12 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
-        /* Glassmorphism Card */
         .glass {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(20px);
@@ -127,20 +127,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
-        /* Device Info Badge */
-        .device-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            background: rgba(168, 85, 247, 0.12);
-            border: 1px solid rgba(168, 85, 247, 0.15);
-            border-radius: 40px;
-            font-size: 12px;
-            color: #c4b5fd;
-        }
-
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -242,13 +228,25 @@
             }
         }
 
-        /* Live Preview */
-        .live-preview {
-            padding: 24px 28px;
+        .device-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #6a7d9e;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* Preview Container */
+        .preview-container {
+            padding: 20px;
             margin-bottom: 20px;
         }
 
-        .live-preview .label {
+        .preview-container .label {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
@@ -256,12 +254,67 @@
             margin-bottom: 12px;
         }
 
+        .iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #0a0b1a;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        .iframe-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #fff;
+            font-size: 16px;
+            transition: opacity 0.5s;
+            border-radius: 16px;
+        }
+
+        .iframe-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .iframe-overlay .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .progress-bar {
-            height: 6px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.06);
             border-radius: 40px;
             overflow: hidden;
-            position: relative;
+            margin-top: 12px;
         }
 
         .progress-fill {
@@ -269,19 +322,7 @@
             width: 0%;
             background: linear-gradient(90deg, #6c3cff, #a855f7, #ff3c9e);
             border-radius: 40px;
-            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-            position: relative;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 20px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
-            border-radius: 40px;
+            transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .preview-info {
@@ -315,7 +356,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Grid 2 columns */
+        /* Grid */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -463,8 +504,7 @@
             margin-bottom: 6px;
         }
 
-        .recorder-box input,
-        .recorder-box select {
+        .recorder-box input {
             width: 100%;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.04);
@@ -477,8 +517,7 @@
             transition: all 0.3s;
         }
 
-        .recorder-box input:focus,
-        .recorder-box select:focus {
+        .recorder-box input:focus {
             border-color: rgba(168, 85, 247, 0.4);
             box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.06);
             background: rgba(255, 255, 255, 0.06);
@@ -662,7 +701,6 @@
             font-weight: 600;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -698,7 +736,6 @@
             font-size: 13px;
         }
 
-        /* Footer */
         .footer {
             text-align: center;
             padding: 20px 0 8px;
@@ -708,17 +745,11 @@
             border-top: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        .footer a {
-            color: #6a7d9e;
-            text-decoration: none;
-        }
-
         .footer .hashtags {
             margin-top: 6px;
             color: #4a5d7e;
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             body {
                 padding: 12px;
@@ -734,39 +765,24 @@
             .logo h1 {
                 font-size: 20px;
             }
-            .live-preview,
+            .preview-container,
             .recorder-box,
             .history-section,
             .dashboard {
                 padding: 16px 18px;
             }
+            .iframe-wrapper {
+                height: 300px;
+            }
             .preview-info .url-display {
                 max-width: 50%;
                 font-size: 11px;
             }
-            .device-badge {
-                font-size: 10px;
-                padding: 4px 12px;
-            }
-        }
-
-        /* Mobile detection indicator */
-        .device-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #6a7d9e;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
         }
     </style>
 </head>
 <body>
 
-    <!-- Polymorphism Background Shapes -->
     <div class="bg-shapes">
         <div class="shape"></div>
         <div class="shape"></div>
@@ -777,7 +793,6 @@
 
     <div class="container">
 
-        <!-- Header -->
         <header class="header">
             <div class="logo">
                 <div class="logo-icon">◆</div>
@@ -787,9 +802,7 @@
                 </div>
             </div>
             <div class="header-right">
-                <div class="device-indicator" id="deviceIndicator">
-                    💻 Desktop
-                </div>
+                <div class="device-indicator" id="deviceIndicator">💻 Desktop</div>
                 <div class="status-badge">
                     <span class="status-dot"></span>
                     <span>Ready</span>
@@ -797,15 +810,26 @@
             </div>
         </header>
 
-        <!-- Live Preview -->
-        <div class="live-preview glass">
+        <!-- Preview Container dengan Iframe -->
+        <div class="preview-container glass">
             <div class="label">
                 <span>📡 Live Preview</span>
                 <span id="progressLabel">0%</span>
             </div>
+
+            <div class="iframe-wrapper" id="iframeWrapper">
+                <iframe id="targetFrame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                <div class="iframe-overlay" id="iframeOverlay">
+                    <div class="spinner"></div>
+                    <span>⏳ Memuat halaman target...</span>
+                    <span style="font-size:13px;color:#8b9bbf;" id="loadingUrl">https://lumidev.my.id</span>
+                </div>
+            </div>
+
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill" style="width:0%"></div>
             </div>
+
             <div class="preview-info">
                 <span class="url-display" id="currentUrlDisplay">https://lumidev.my.id</span>
                 <span class="percent" id="percentDisplay">0%</span>
@@ -815,7 +839,6 @@
         <!-- Grid 2: History + Recorder -->
         <div class="grid-2">
 
-            <!-- History -->
             <div class="history-section glass">
                 <div class="history-header">
                     <div>
@@ -829,11 +852,10 @@
                 </div>
             </div>
 
-            <!-- Recorder -->
             <div class="recorder-box glass">
                 <div class="field">
                     <label>🌐 Target URL</label>
-                    <input type="url" id="targetUrl" value="https://lumidev.my.id" placeholder="https://example.com">
+                    <input type="url" id="targetUrl" value="https://krsumkti.netlify.app/schedule/a49iRnC" placeholder="https://example.com">
                 </div>
 
                 <div class="field">
@@ -848,12 +870,13 @@
                     </div>
                     <div class="field">
                         <label>🎞️ FPS</label>
-                        <input type="number" id="fps" value="60" step="5" min="15" max="120">
+                        <input type="number" id="fps" value="30" step="5" min="15" max="60">
                     </div>
                 </div>
 
                 <button class="btn-primary" id="startRecord">▶ Mulai Rekam</button>
                 <button class="btn-secondary" id="stopRecord" style="display:none;">⏹ Hentikan Rekam</button>
+                <button class="btn-secondary" id="loadUrlBtn" style="margin-top:8px;padding:10px;font-size:13px;">🔄 Muat URL</button>
             </div>
         </div>
 
@@ -893,7 +916,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             <div>Lumidev Studio Record 2026 · Next-Gen Screen Recorder</div>
             <div class="hashtags">#lumidev #polymorphism #coding #future</div>
@@ -901,7 +923,6 @@
 
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast">
         <div class="toast-title" id="toastTitle">✅ Sukses</div>
         <div class="toast-desc" id="toastDesc">Rekaman tersimpan</div>
@@ -911,13 +932,14 @@
         (function() {
             'use strict';
 
-            // --- DOM refs ---
+            // DOM refs
             const targetUrl = document.getElementById('targetUrl');
             const fileName = document.getElementById('fileName');
             const scrollSpeed = document.getElementById('scrollSpeed');
             const fps = document.getElementById('fps');
             const startBtn = document.getElementById('startRecord');
             const stopBtn = document.getElementById('stopRecord');
+            const loadUrlBtn = document.getElementById('loadUrlBtn');
             const progressFill = document.getElementById('progressFill');
             const progressLabel = document.getElementById('progressLabel');
             const percentDisplay = document.getElementById('percentDisplay');
@@ -937,57 +959,42 @@
             const toast = document.getElementById('toast');
             const toastTitle = document.getElementById('toastTitle');
             const toastDesc = document.getElementById('toastDesc');
+            const targetFrame = document.getElementById('targetFrame');
+            const iframeOverlay = document.getElementById('iframeOverlay');
+            const loadingUrl = document.getElementById('loadingUrl');
 
-            // --- Constants ---
             const STORAGE_KEY = 'lumidev_history';
-
-            // --- State ---
             let historyItems = [];
             let isRecording = false;
             let recordInterval = null;
             let progress = 0;
             let mediaRecorder = null;
             let recordedChunks = [];
-            let stream = null;
+            let captureStream = null;
+            let captureInterval = null;
+            let canvas = null;
+            let ctx = null;
 
             // --- Device Detection ---
             function detectDevice() {
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
-                const isDesktop = !isMobile && !isTablet;
-
-                let deviceTypeText = 'Desktop';
-                let icon = '💻';
-                let name = 'Lumidev Studio';
-
-                if (isMobile) {
-                    deviceTypeText = 'Mobile';
+                let type = 'Desktop',
+                    icon = '💻',
+                    name = 'Lumidev Studio';
+                if (isMobile) { type = 'Mobile';
                     icon = '📱';
-                    name = 'Lumidev Mobile';
-                } else if (isTablet) {
-                    deviceTypeText = 'Tablet';
+                    name = 'Lumidev Mobile'; } else if (isTablet) { type = 'Tablet';
                     icon = '📟';
-                    name = 'Lumidev Tablet';
-                }
-
-                return {
-                    type: deviceTypeText,
-                    icon: icon,
-                    name: name,
-                    isMobile: isMobile,
-                    isTablet: isTablet,
-                    isDesktop: isDesktop
-                };
+                    name = 'Lumidev Tablet'; }
+                return { type, icon, name, isMobile, isTablet, isDesktop: !isMobile && !isTablet };
             }
-
             const deviceInfo = detectDevice();
-
-            // Update UI with device info
             deviceIndicator.innerHTML = `${deviceInfo.icon} ${deviceInfo.type}`;
             deviceName.textContent = deviceInfo.name;
             deviceType.textContent = deviceInfo.isMobile ? 'Perangkat Mobile terdeteksi' : 'Server Status: Online';
 
-            // --- Storage Detection using Storage API ---
+            // --- Storage Detection ---
             async function detectStorage() {
                 try {
                     if ('storage' in navigator && 'estimate' in navigator.storage) {
@@ -997,48 +1004,30 @@
                         const usedGB = (used / (1024 ** 3)).toFixed(2);
                         const quotaGB = (quota / (1024 ** 3)).toFixed(2);
                         const percent = quota > 0 ? (used / quota) * 100 : 0;
-
                         updateStorageUI(usedGB, quotaGB, percent, 'Browser Storage');
-
                         setInterval(async () => {
                             try {
-                                const newEstimate = await navigator.storage.estimate();
-                                const newUsed = newEstimate.usage || 0;
-                                const newQuota = newEstimate.quota || 0;
-                                const newUsedGB = (newUsed / (1024 ** 3)).toFixed(2);
-                                const newQuotaGB = (newQuota / (1024 ** 3)).toFixed(2);
-                                const newPercent = newQuota > 0 ? (newUsed / newQuota) * 100 : 0;
-                                updateStorageUI(newUsedGB, newQuotaGB, newPercent, 'Browser Storage');
-                            } catch (e) {
-                                console.warn('Storage update failed:', e);
-                            }
+                                const e = await navigator.storage.estimate();
+                                const u = (e.usage / (1024 ** 3)).toFixed(2);
+                                const q = (e.quota / (1024 ** 3)).toFixed(2);
+                                const p = e.quota > 0 ? (e.usage / e.quota) * 100 : 0;
+                                updateStorageUI(u, q, p, 'Browser Storage');
+                            } catch (err) { console.warn(err); }
                         }, 30000);
-
                         return;
                     }
-
-                    const localStorageSize = getLocalStorageSize();
-                    const usedGB = (localStorageSize / (1024 ** 3)).toFixed(2);
-                    const quotaGB = '0.50';
-                    const percent = (localStorageSize / (5 * 1024 * 1024)) * 100;
-
-                    updateStorageUI(usedGB, quotaGB, Math.min(percent, 100), 'Local Storage');
-
+                    const lsSize = getLocalStorageSize();
+                    updateStorageUI((lsSize / (1024 ** 3)).toFixed(2), '0.50', Math.min((lsSize / (5 * 1024 * 1024)) * 100,
+                        100), 'Local Storage');
                 } catch (e) {
                     console.warn('Storage detection failed:', e);
-                    const localStorageSize = getLocalStorageSize();
-                    const usedGB = (localStorageSize / (1024 ** 3)).toFixed(4);
-                    updateStorageUI(usedGB, '0.01', Math.min((localStorageSize / (5 * 1024 * 1024)) * 100, 100),
-                        'Local Storage');
                 }
             }
 
             function getLocalStorageSize() {
                 let total = 0;
                 for (let key in localStorage) {
-                    if (localStorage.hasOwnProperty(key)) {
-                        total += localStorage[key].length * 2;
-                    }
+                    if (localStorage.hasOwnProperty(key)) total += localStorage[key].length * 2;
                 }
                 return total;
             }
@@ -1048,20 +1037,13 @@
                 storageTotal.textContent = total + ' GB';
                 storageFill.style.width = Math.min(percent, 95) + '%';
                 storageLabel.textContent = label;
-
                 const free = (parseFloat(total) - parseFloat(used)).toFixed(2);
                 diskFree.textContent = 'Sisa: ' + free + ' GB';
-
-                if (percent > 85) {
-                    storageFill.classList.add('warning');
-                    storageStatus.textContent = '⚠️ Hampir Penuh';
-                } else if (percent > 70) {
-                    storageFill.classList.add('warning');
-                    storageStatus.textContent = '⚡ Menengah';
-                } else {
-                    storageFill.classList.remove('warning');
-                    storageStatus.textContent = '✅ Aman';
-                }
+                if (percent > 85) { storageFill.classList.add('warning');
+                    storageStatus.textContent = '⚠️ Hampir Penuh'; } else if (percent > 70) { storageFill.classList.add(
+                        'warning');
+                    storageStatus.textContent = '⚡ Menengah'; } else { storageFill.classList.remove('warning');
+                    storageStatus.textContent = '✅ Aman'; }
             }
 
             // --- Toast ---
@@ -1073,32 +1055,20 @@
                 toast.style.borderLeft = isError ? '3px solid #ef4444' : '3px solid #34d399';
                 toast.classList.add('show');
                 clearTimeout(toastTimeout);
-                toastTimeout = setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
+                toastTimeout = setTimeout(() => toast.classList.remove('show'), 4000);
             }
 
             // --- History ---
             function loadHistory() {
                 try {
                     const stored = localStorage.getItem(STORAGE_KEY);
-                    if (stored) {
-                        historyItems = JSON.parse(stored);
-                    } else {
-                        historyItems = [];
-                    }
-                } catch (e) {
-                    historyItems = [];
-                }
+                    historyItems = stored ? JSON.parse(stored) : [];
+                } catch (e) { historyItems = []; }
                 renderHistory();
             }
 
             function saveHistory() {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(historyItems));
-                } catch (e) {
-                    console.warn('Failed to save history:', e);
-                }
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(historyItems)); } catch (e) { console.warn(e); }
             }
 
             function renderHistory() {
@@ -1109,20 +1079,16 @@
                 }
                 historyCount.textContent = historyItems.length + ' rekaman';
                 historyList.innerHTML = historyItems.map((item, idx) => `
-                        <div class="history-item">
-                            <div class="name">
-                                <span class="icon">🎬</span>
-                                <span>${item.name}</span>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:12px;">
-                                <span class="time">${item.time}</span>
-                                <button class="delete-item" data-index="${idx}" title="Hapus">✕</button>
-                            </div>
+                    <div class="history-item">
+                        <div class="name"><span class="icon">🎬</span><span>${item.name}</span></div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="time">${item.time}</span>
+                            <button class="delete-item" data-index="${idx}">✕</button>
                         </div>
-                    `).join('');
-
+                    </div>
+                `).join('');
                 document.querySelectorAll('.delete-item').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
+                    btn.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
                         historyItems.splice(idx, 1);
                         saveHistory();
@@ -1135,56 +1101,92 @@
             function addHistory(name) {
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-                historyItems.unshift({
-                    name: name || 'rekaman.webm',
-                    time: timeStr,
-                    date: dateStr
-                });
+                historyItems.unshift({ name: name || 'rekaman.webm', time: timeStr });
                 if (historyItems.length > 100) historyItems.pop();
                 saveHistory();
                 renderHistory();
             }
 
             clearBtn.addEventListener('click', function() {
-                if (historyItems.length === 0) {
-                    showToast('ℹ️ Info', 'Tidak ada riwayat untuk dihapus');
-                    return;
-                }
+                if (historyItems.length === 0) { showToast('ℹ️ Info', 'Tidak ada riwayat untuk dihapus'); return; }
                 historyItems = [];
                 saveHistory();
                 renderHistory();
                 showToast('🧹 Bersih', 'Semua riwayat dihapus');
             });
 
-            // --- Update URL display ---
-            targetUrl.addEventListener('input', function() {
+            // --- Load URL ke Iframe ---
+            function loadUrlInIframe(url) {
+                if (!url || url === 'about:blank') return;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                loadingUrl.textContent = url;
+                iframeOverlay.classList.remove('hidden');
+                currentUrlDisplay.textContent = url;
+                targetFrame.src = url;
+
+                // Sembunyikan overlay setelah iframe load
+                targetFrame.onload = function() {
+                    iframeOverlay.classList.add('hidden');
+                    showToast('✅ Dimuat', 'Halaman berhasil dimuat di preview');
+                };
+                targetFrame.onerror = function() {
+                    iframeOverlay.classList.add('hidden');
+                    showToast('❌ Gagal', 'Tidak bisa memuat halaman', true);
+                };
+
+                // Timeout fallback
+                setTimeout(() => {
+                    if (!iframeOverlay.classList.contains('hidden')) {
+                        iframeOverlay.classList.add('hidden');
+                        showToast('⚠️ Timeout', 'Halaman mungkin butuh waktu lebih lama', true);
+                    }
+                }, 15000);
+            }
+
+            loadUrlBtn.addEventListener('click', function() {
+                const url = targetUrl.value.trim() || 'https://lumidev.my.id';
+                loadUrlInIframe(url);
+            });
+
+            targetUrl.addEventListener('change', function() {
                 currentUrlDisplay.textContent = this.value || 'https://lumidev.my.id';
             });
 
-            // --- Recording ---
+            // Load default URL
+            setTimeout(() => {
+                loadUrlInIframe(targetUrl.value || 'https://lumidev.my.id');
+            }, 500);
+
+            // --- Recording using html2canvas on iframe ---
             async function startRecording() {
                 const url = targetUrl.value.trim() || 'https://lumidev.my.id';
                 const name = fileName.value.trim() || 'rekaman.webm';
                 const speed = parseFloat(scrollSpeed.value) || 3;
-                const frameRate = parseInt(fps.value) || 60;
+                const frameRate = parseInt(fps.value) || 30;
 
                 if (isRecording) return;
 
                 try {
-                    stream = await navigator.mediaDevices.getDisplayMedia({
-                        video: {
-                            displaySurface: 'browser',
-                            frameRate: { ideal: frameRate }
-                        },
-                        audio: true,
-                        preferCurrentTab: true
-                    });
+                    // Setup canvas untuk capture
+                    canvas = document.createElement('canvas');
+                    const wrapper = document.getElementById('iframeWrapper');
+                    const rect = wrapper.getBoundingClientRect();
+                    const width = rect.width || 800;
+                    const height = rect.height || 500;
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx = canvas.getContext('2d');
 
+                    // Create stream from canvas
+                    captureStream = canvas.captureStream(frameRate);
+
+                    // Setup MediaRecorder
                     const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
                     let mimeType = mimeTypes.find(mt => MediaRecorder.isTypeSupported(mt)) || 'video/webm';
 
-                    mediaRecorder = new MediaRecorder(stream, {
+                    mediaRecorder = new MediaRecorder(captureStream, {
                         mimeType: mimeType,
                         videoBitsPerSecond: 5000000
                     });
@@ -1222,7 +1224,6 @@
                         isRecording = false;
                         document.querySelector('.status-badge span:last-child').textContent = 'Ready';
                         document.querySelector('.status-dot').style.background = '#34d399';
-
                         detectStorage();
                     };
 
@@ -1236,29 +1237,68 @@
 
                     progress = 0;
                     updateProgress(0);
-                    recordInterval = setInterval(() => {
+
+                    // Capture frame dengan html2canvas
+                    let frameCount = 0;
+                    const totalFrames = 300; // 10 detik @ 30fps
+                    const frameInterval = 1000 / frameRate;
+
+                    captureInterval = setInterval(async () => {
                         if (!isRecording) return;
-                        progress += Math.random() * 4 + 1;
+
+                        try {
+                            const iframeEl = targetFrame;
+                            if (iframeEl && iframeEl.contentDocument) {
+                                // Coba capture iframe dengan html2canvas
+                                const capturedCanvas = await html2canvas(iframeEl.contentDocument.body, {
+                                    scale: 1,
+                                    useCORS: true,
+                                    allowTaint: true,
+                                    backgroundColor: '#ffffff',
+                                    width: canvas.width,
+                                    height: canvas.height,
+                                    logging: false,
+                                });
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                ctx.drawImage(capturedCanvas, 0, 0, canvas.width, canvas.height);
+                            } else {
+                                // Fallback: gambarkan pesan
+                                ctx.fillStyle = '#0a0b1a';
+                                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                ctx.fillStyle = '#8b9bbf';
+                                ctx.font = '16px Inter, sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.fillText('⏳ Menunggu halaman dimuat...', canvas.width / 2, canvas.height / 2);
+                            }
+                        } catch (e) {
+                            console.warn('Capture error:', e);
+                            // Gambarkan error
+                            ctx.fillStyle = '#0a0b1a';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#f87171';
+                            ctx.font = '14px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('⚠️ Gagal menangkap halaman', canvas.width / 2, canvas.height / 2);
+                        }
+
+                        frameCount++;
+                        progress = Math.min((frameCount / totalFrames) * 100, 100);
+                        updateProgress(progress);
+
                         if (progress >= 100) {
-                            progress = 100;
-                            updateProgress(100);
+                            clearInterval(captureInterval);
+                            captureInterval = null;
                             if (mediaRecorder && mediaRecorder.state === 'recording') {
                                 mediaRecorder.stop();
                             }
-                            clearInterval(recordInterval);
-                        } else {
-                            updateProgress(progress);
                         }
-                    }, 500);
+                    }, frameInterval);
 
                     showToast('🎥 Merekam', `Merekam ${url} dengan ${frameRate}FPS`);
 
                 } catch (error) {
                     console.error('Error starting recording:', error);
-                    showToast('❌ Gagal', error.message || 'Izin layar ditolak', true);
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                    }
+                    showToast('❌ Gagal', error.message || 'Terjadi kesalahan', true);
                     resetRecordingUI();
                 }
             }
@@ -1271,16 +1311,20 @@
             }
 
             function stopRecording(keepUI = false) {
-                if (recordInterval) {
-                    clearInterval(recordInterval);
-                    recordInterval = null;
+                if (captureInterval) {
+                    clearInterval(captureInterval);
+                    captureInterval = null;
                 }
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.stop();
                 }
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                    stream = null;
+                if (captureStream) {
+                    captureStream.getTracks().forEach(track => track.stop());
+                    captureStream = null;
+                }
+                if (canvas) {
+                    canvas = null;
+                    ctx = null;
                 }
                 if (!keepUI) {
                     resetRecordingUI();
@@ -1295,9 +1339,9 @@
                 startBtn.textContent = '▶ Mulai Rekam';
                 document.querySelector('.status-badge span:last-child').textContent = 'Ready';
                 document.querySelector('.status-dot').style.background = '#34d399';
-                if (recordInterval) {
-                    clearInterval(recordInterval);
-                    recordInterval = null;
+                if (captureInterval) {
+                    clearInterval(captureInterval);
+                    captureInterval = null;
                 }
                 isRecording = false;
             }
@@ -1312,13 +1356,19 @@
             });
 
             startBtn.addEventListener('click', function() {
-                startRecording();
+                // Pastikan URL sudah dimuat
+                const url = targetUrl.value.trim();
+                if (url && targetFrame.src !== url) {
+                    loadUrlInIframe(url);
+                    setTimeout(() => startRecording(), 2000);
+                } else {
+                    startRecording();
+                }
             });
 
             // --- Init ---
             loadHistory();
             detectStorage();
-
             currentUrlDisplay.textContent = targetUrl.value || 'https://lumidev.my.id';
 
             console.log('🚀 Lumidev Studio Record siap!');
