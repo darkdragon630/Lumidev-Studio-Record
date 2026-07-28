@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lumidev Studio Record</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;600;700;800&display=swap');
 
@@ -240,7 +238,6 @@
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        /* Preview Container */
         .preview-container {
             padding: 20px;
             margin-bottom: 20px;
@@ -502,7 +499,8 @@
             margin-bottom: 6px;
         }
 
-        .recorder-box input {
+        .recorder-box input,
+        .recorder-box select {
             width: 100%;
             padding: 12px 16px;
             background: rgba(255, 255, 255, 0.04);
@@ -515,7 +513,8 @@
             transition: all 0.3s;
         }
 
-        .recorder-box input:focus {
+        .recorder-box input:focus,
+        .recorder-box select:focus {
             border-color: rgba(168, 85, 247, 0.4);
             box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.06);
             background: rgba(255, 255, 255, 0.06);
@@ -602,6 +601,52 @@
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-success {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.35);
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .format-selector label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #8b9bbf;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 400;
+        }
+
+        .format-selector input[type="radio"] {
+            width: auto;
+            padding: 0;
+            accent-color: #a855f7;
+            background: transparent;
         }
 
         .dashboard {
@@ -777,7 +822,6 @@
             }
         }
 
-        /* Status recording info */
         .recording-info {
             display: none;
             margin-top: 12px;
@@ -895,10 +939,15 @@
 
                 <div class="field">
                     <label>📁 Nama File (opsional)</label>
-                    <input type="text" id="fileName" placeholder="rekaman.webm" value="rekaman.webm">
+                    <input type="text" id="fileName" placeholder="rekaman" value="rekaman">
                 </div>
 
-                <div class="row-2">
+                <div class="format-selector">
+                    <label><input type="radio" name="format" value="mp4" checked> MP4 (H.264)</label>
+                    <label><input type="radio" name="format" value="webm"> WebM (VP9)</label>
+                </div>
+
+                <div class="row-2" style="margin-top:12px;">
                     <div class="field">
                         <label>⚡ Kecepatan Scroll</label>
                         <input type="number" id="scrollSpeed" value="3" step="0.5" min="0.5">
@@ -999,6 +1048,7 @@
             const iframeOverlay = document.getElementById('iframeOverlay');
             const loadingUrl = document.getElementById('loadingUrl');
             const recordingInfo = document.getElementById('recordingInfo');
+            const formatRadios = document.querySelectorAll('input[name="format"]');
 
             const STORAGE_KEY = 'lumidev_history';
             let historyItems = [];
@@ -1007,11 +1057,8 @@
             let progress = 0;
             let mediaRecorder = null;
             let recordedChunks = [];
-            let captureStream = null;
-            let captureInterval = null;
-            let canvas = null;
-            let ctx = null;
-            let targetTabId = null;
+            let stream = null;
+            let targetWindow = null;
 
             // --- Device Detection ---
             function detectDevice() {
@@ -1163,10 +1210,7 @@
                 iframeOverlay.classList.remove('hidden');
                 currentUrlDisplay.textContent = url;
 
-                // Reset iframe
                 targetFrame.src = 'about:blank';
-
-                // Load setelah delay kecil
                 setTimeout(() => {
                     targetFrame.src = url;
                 }, 300);
@@ -1177,7 +1221,6 @@
                 };
                 targetFrame.onerror = function() {
                     iframeOverlay.classList.add('hidden');
-                    showToast('⚠️ Sebagian', 'Halaman dimuat tapi mungkin tidak sepenuhnya');
                 };
 
                 setTimeout(() => {
@@ -1192,7 +1235,6 @@
                 loadUrlInIframe(url);
             });
 
-            // --- Buka di Tab Baru ---
             openTabBtn.addEventListener('click', function() {
                 const url = targetUrl.value.trim() || 'https://lumidev.my.id';
                 if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -1207,23 +1249,64 @@
                 currentUrlDisplay.textContent = this.value || 'https://lumidev.my.id';
             });
 
-            // Load default URL
             setTimeout(() => {
                 loadUrlInIframe(targetUrl.value || 'https://lumidev.my.id');
             }, 500);
 
-            // --- Recording dengan Screen Capture (rekam tab target) ---
+            // --- Get selected format ---
+            function getSelectedFormat() {
+                for (const radio of formatRadios) {
+                    if (radio.checked) return radio.value;
+                }
+                return 'mp4';
+            }
+
+            // --- Get MIME type based on format ---
+            function getMimeType(format) {
+                if (format === 'mp4') {
+                    // Prioritaskan codec yang support MP4
+                    const types = [
+                        'video/mp4;codecs=avc1.42E01E',
+                        'video/mp4;codecs=avc1.4d002a',
+                        'video/mp4;codecs=h264',
+                        'video/mp4'
+                    ];
+                    for (const t of types) {
+                        if (MediaRecorder.isTypeSupported(t)) return t;
+                    }
+                    return 'video/webm'; // fallback
+                } else {
+                    const types = [
+                        'video/webm;codecs=vp9',
+                        'video/webm;codecs=vp8',
+                        'video/webm'
+                    ];
+                    for (const t of types) {
+                        if (MediaRecorder.isTypeSupported(t)) return t;
+                    }
+                    return 'video/webm';
+                }
+            }
+
+            // --- Get file extension ---
+            function getExtension(format) {
+                return format === 'mp4' ? 'mp4' : 'webm';
+            }
+
+            // --- Recording ---
             async function startRecording() {
                 const url = targetUrl.value.trim() || 'https://lumidev.my.id';
-                const name = fileName.value.trim() || 'rekaman.webm';
+                const name = fileName.value.trim() || 'rekaman';
                 const speed = parseFloat(scrollSpeed.value) || 3;
                 const frameRate = parseInt(fps.value) || 30;
+                const format = getSelectedFormat();
+                const ext = getExtension(format);
+                const fullName = name + '.' + ext;
 
                 if (isRecording) return;
 
                 try {
-                    // Buka tab target dulu
-                    let targetWindow = null;
+                    // Buka tab target
                     if (!url.startsWith('http://') && !url.startsWith('https://')) {
                         targetWindow = window.open('https://' + url, '_blank');
                     } else {
@@ -1236,12 +1319,10 @@
                     }
 
                     showToast('⏳ Menunggu', 'Tunggu sebentar sementara halaman dimuat...');
+                    await new Promise((resolve) => setTimeout(resolve, 4000));
 
-                    // Tunggu halaman target dimuat
-                    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-                    // Minta izin untuk merekam tab
-                    const stream = await navigator.mediaDevices.getDisplayMedia({
+                    // Minta izin merekam
+                    stream = await navigator.mediaDevices.getDisplayMedia({
                         video: {
                             displaySurface: 'browser',
                             frameRate: { ideal: frameRate }
@@ -1250,12 +1331,13 @@
                         preferCurrentTab: false
                     });
 
-                    const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
-                    let mimeType = mimeTypes.find(mt => MediaRecorder.isTypeSupported(mt)) || 'video/webm';
+                    const mimeType = getMimeType(format);
+                    console.log('Using MIME type:', mimeType);
 
                     mediaRecorder = new MediaRecorder(stream, {
                         mimeType: mimeType,
-                        videoBitsPerSecond: 5000000
+                        videoBitsPerSecond: 5000000,
+                        audioBitsPerSecond: 128000
                     });
 
                     recordedChunks = [];
@@ -1267,20 +1349,28 @@
                     };
 
                     mediaRecorder.onstop = () => {
+                        // Buat blob dengan MIME type yang benar
                         const blob = new Blob(recordedChunks, { type: mimeType });
                         const url = URL.createObjectURL(blob);
+
+                        // Buat link download
                         const a = document.createElement('a');
-                        const finalName = name.endsWith('.webm') ? name : name + '.webm';
                         a.href = url;
-                        a.download = finalName;
+                        a.download = fullName;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
+
+                        // Buka di tab baru untuk preview
+                        setTimeout(() => {
+                            window.open(url, '_blank');
+                        }, 500);
+
+                        setTimeout(() => URL.revokeObjectURL(url), 5000);
 
                         stopRecording(true);
-                        showToast('✅ Rekaman Selesai', `File ${a.download} berhasil disimpan`);
-                        addHistory(a.download);
+                        showToast('✅ Rekaman Selesai', `File ${fullName} berhasil disimpan dan dibuka`);
+                        addHistory(fullName);
 
                         progress = 0;
                         updateProgress(0);
@@ -1294,7 +1384,6 @@
                         document.querySelector('.status-dot').style.background = '#34d399';
                         detectStorage();
 
-                        // Tutup tab target
                         if (targetWindow && !targetWindow.closed) {
                             targetWindow.close();
                         }
@@ -1312,11 +1401,10 @@
                     progress = 0;
                     updateProgress(0);
 
-                    // Simulasi progress
                     let prog = 0;
                     recordInterval = setInterval(() => {
                         if (!isRecording) return;
-                        prog += Math.random() * 2 + 1;
+                        prog += Math.random() * 2 + 0.5;
                         if (prog >= 100) {
                             prog = 100;
                             updateProgress(100);
@@ -1329,10 +1417,10 @@
                         }
                     }, 500);
 
-                    showToast('🎥 Merekam', `Merekam ${url} dengan ${frameRate}FPS`);
+                    showToast('🎥 Merekam', `Merekam ${url} dengan ${frameRate}FPS (${format.toUpperCase()})`);
 
                 } catch (error) {
-                    console.error('Error starting recording:', error);
+                    console.error('Error:', error);
                     showToast('❌ Gagal', error.message || 'Izin layar ditolak', true);
                     resetRecordingUI();
                 }
@@ -1351,11 +1439,11 @@
                     recordInterval = null;
                 }
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
+                    try { mediaRecorder.stop(); } catch (e) {}
                 }
-                if (captureStream) {
-                    captureStream.getTracks().forEach(track => track.stop());
-                    captureStream = null;
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
                 }
                 if (!keepUI) {
                     resetRecordingUI();
@@ -1376,6 +1464,9 @@
                     recordInterval = null;
                 }
                 isRecording = false;
+                if (targetWindow && !targetWindow.closed) {
+                    try { targetWindow.close(); } catch (e) {}
+                }
             }
 
             stopBtn.addEventListener('click', function() {
@@ -1388,7 +1479,6 @@
             });
 
             startBtn.addEventListener('click', function() {
-                // Cek apakah URL valid
                 const url = targetUrl.value.trim();
                 if (!url || url === 'about:blank') {
                     showToast('⚠️ Error', 'Masukkan URL yang valid terlebih dahulu', true);
