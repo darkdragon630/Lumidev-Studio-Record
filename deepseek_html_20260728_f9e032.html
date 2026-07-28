@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumidev Studio Record</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0b1a;
+            color: #e8ecf5;
+            min-height: 100vh;
+            padding: 24px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Polymorphism Background - Dynamic Geometric Shapes */
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: floatShape 20s infinite alternate ease-in-out;
+        }
+
+        .shape:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #6c3cff, #3b1f8e);
+            top: -10%;
+            right: -5%;
+            animation-duration: 25s;
+        }
+
+        .shape:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #ff3c9e, #8e1f5a);
+            bottom: -10%;
+            left: -5%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #00d4ff, #0066cc);
+            top: 40%;
+            left: 40%;
+            animation-duration: 22s;
+            animation-delay: -10s;
+        }
+
+        .shape:nth-child(4) {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ffb347, #ff6b00);
+            bottom: 20%;
+            right: 15%;
+            animation-duration: 18s;
+            animation-delay: -3s;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            border-radius: 0;
+        }
+
+        .shape:nth-child(5) {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #a855f7, #7c3aed);
+            top: 15%;
+            left: 10%;
+            animation-duration: 28s;
+            animation-delay: -8s;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            border-radius: 0;
+        }
+
+        @keyframes floatShape {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -40px) scale(1.1) rotate(120deg);
+            }
+            66% {
+                transform: translate(-20px, 30px) scale(0.9) rotate(240deg);
+            }
+            100% {
+                transform: translate(10px, -10px) scale(1.05) rotate(360deg);
+            }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Card */
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        /* Device Info Badge */
+        .device-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+            border-radius: 40px;
+            font-size: 12px;
+            color: #c4b5fd;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6c3cff, #a855f7, #ff3c9e);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 8px 32px rgba(108, 60, 255, 0.3);
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 8px 32px rgba(108, 60, 255, 0.3);
+            }
+            100% {
+                box-shadow: 0 8px 48px rgba(255, 60, 158, 0.4);
+            }
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c4b5fd, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            font-size: 12px;
+            color: #8b9bbf;
+            -webkit-text-fill-color: #8b9bbf;
+            background: none;
+            font-weight: 400;
+            display: block;
+            margin-top: -2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            border-radius: 40px;
+            font-size: 13px;
+            color: #6ee7b7;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            animation: blinkDot 1.5s infinite;
+        }
+
+        @keyframes blinkDot {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        /* Live Preview */
+        .live-preview {
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .live-preview .label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #9aadcf;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6c3cff, #a855f7, #ff3c9e);
+            border-radius: 40px;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+            border-radius: 40px;
+        }
+
+        .preview-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preview-info .url-display {
+            font-size: 13px;
+            color: #7a8db0;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-family: 'Inter', monospace;
+            max-width: 70%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-info .percent {
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, #c4b5fd, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Grid 2 columns */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* History */
+        .history-section {
+            padding: 20px 24px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #c8d4ea;
+        }
+
+        .history-header .count {
+            font-size: 12px;
+            color: #6a7d9e;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #f87171;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 6px 16px;
+            border-radius: 30px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .clear-btn:hover {
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .history-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.3);
+            border-radius: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 14px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item .name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d4def0;
+        }
+
+        .history-item .name .icon {
+            font-size: 16px;
+        }
+
+        .history-item .time {
+            font-size: 12px;
+            color: #5f7294;
+        }
+
+        .history-item .delete-item {
+            background: none;
+            border: none;
+            color: #5f7294;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .history-item .delete-item:hover {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.08);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 30px 0;
+            color: #4a5d7e;
+            font-size: 14px;
+        }
+
+        /* Recorder */
+        .recorder-box {
+            padding: 24px 28px;
+        }
+
+        .recorder-box .field {
+            margin-bottom: 16px;
+        }
+
+        .recorder-box label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b9bbf;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .recorder-box input,
+        .recorder-box select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            color: #e8ecf5;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .recorder-box input:focus,
+        .recorder-box select:focus {
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.06);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .recorder-box input::placeholder {
+            color: #3f5272;
+        }
+
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 500px) {
+            .row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6c3cff, #a855f7);
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            margin-top: 8px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(108, 60, 255, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0px) scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #b0c2de;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 24px 28px;
+            margin-top: 20px;
+        }
+
+        .dashboard .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dashboard .server-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e8ecf5;
+        }
+
+        .dashboard .server-name small {
+            font-weight: 400;
+            font-size: 13px;
+            color: #6a7d9e;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .dashboard .server-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 3px 14px;
+            border-radius: 30px;
+            font-size: 11px;
+            color: #9aadcf;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .storage-section {
+            margin-top: 16px;
+        }
+
+        .storage-section .info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #8b9bbf;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .storage-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 40px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .storage-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            border-radius: 40px;
+            transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .storage-fill.warning {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+        }
+
+        .disk-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #6a7d9e;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .disk-info strong {
+            color: #e8ecf5;
+            font-weight: 600;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            background: rgba(20, 25, 45, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            color: #e8ecf5;
+            font-size: 14px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 100;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            max-width: 380px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast .toast-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .toast .toast-desc {
+            color: #8b9bbf;
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 0 8px;
+            font-size: 12px;
+            color: #3f5272;
+            margin-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .footer a {
+            color: #6a7d9e;
+            text-decoration: none;
+        }
+
+        .footer .hashtags {
+            margin-top: 6px;
+            color: #4a5d7e;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px 20px;
+            }
+            .header-right {
+                justify-content: space-between;
+            }
+            .logo h1 {
+                font-size: 20px;
+            }
+            .live-preview,
+            .recorder-box,
+            .history-section,
+            .dashboard {
+                padding: 16px 18px;
+            }
+            .preview-info .url-display {
+                max-width: 50%;
+                font-size: 11px;
+            }
+            .device-badge {
+                font-size: 10px;
+                padding: 4px 12px;
+            }
+        }
+
+        /* Mobile detection indicator */
+        .device-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #6a7d9e;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Polymorphism Background Shapes -->
+    <div class="bg-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">◆</div>
+                <div>
+                    <h1>Lumidev Studio Record</h1>
+                    <span>Capture · Automate · Innovate</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="device-indicator" id="deviceIndicator">
+                    💻 Desktop
+                </div>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Live Preview -->
+        <div class="live-preview glass">
+            <div class="label">
+                <span>📡 Live Preview</span>
+                <span id="progressLabel">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="preview-info">
+                <span class="url-display" id="currentUrlDisplay">https://lumidev.my.id</span>
+                <span class="percent" id="percentDisplay">0%</span>
+            </div>
+        </div>
+
+        <!-- Grid 2: History + Recorder -->
+        <div class="grid-2">
+
+            <!-- History -->
+            <div class="history-section glass">
+                <div class="history-header">
+                    <div>
+                        <h3>📜 History</h3>
+                        <span class="count" id="historyCount">0 rekaman</span>
+                    </div>
+                    <button class="clear-btn" id="clearHistory">✕ Bersihkan</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="empty-history">Belum ada riwayat rekaman</div>
+                </div>
+            </div>
+
+            <!-- Recorder -->
+            <div class="recorder-box glass">
+                <div class="field">
+                    <label>🌐 Target URL</label>
+                    <input type="url" id="targetUrl" value="https://lumidev.my.id" placeholder="https://example.com">
+                </div>
+
+                <div class="field">
+                    <label>📁 Nama File (opsional)</label>
+                    <input type="text" id="fileName" placeholder="rekaman.webm" value="rekaman.webm">
+                </div>
+
+                <div class="row-2">
+                    <div class="field">
+                        <label>⚡ Kecepatan Scroll</label>
+                        <input type="number" id="scrollSpeed" value="3" step="0.5" min="0.5">
+                    </div>
+                    <div class="field">
+                        <label>🎞️ FPS</label>
+                        <input type="number" id="fps" value="60" step="5" min="15" max="120">
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="startRecord">▶ Mulai Rekam</button>
+                <button class="btn-secondary" id="stopRecord" style="display:none;">⏹ Hentikan Rekam</button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard glass">
+            <div class="server-header">
+                <div>
+                    <div class="server-name">
+                        🖥️ <span id="deviceName">Lumidev Studio</span>
+                        <small id="deviceType">Server Status: Online</small>
+                    </div>
+                    <div class="server-tags">
+                        <span class="tag">#lumidev</span>
+                        <span class="tag">#record</span>
+                        <span class="tag">#coding</span>
+                        <span class="tag">#polymorphism</span>
+                    </div>
+                </div>
+                <span style="font-size:12px; color:#5f7294;" id="uptimeDisplay">uptime 99.9%</span>
+            </div>
+
+            <div class="storage-section">
+                <div class="info">
+                    <span>💾 Penyimpanan</span>
+                    <span id="storageUsed">0 GB</span>
+                    <span>dari <span id="storageTotal">0 GB</span></span>
+                </div>
+                <div class="storage-track">
+                    <div class="storage-fill" id="storageFill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <div class="disk-info">
+                <span>📦 <span id="storageLabel">Storage</span></span>
+                <span>📄 <span id="storageStatus">Ready</span></span>
+                <span><strong id="diskFree">Sisa: 0 GB</strong></span>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>Lumidev Studio Record 2026 · Next-Gen Screen Recorder</div>
+            <div class="hashtags">#lumidev #polymorphism #coding #future</div>
+        </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-title" id="toastTitle">✅ Sukses</div>
+        <div class="toast-desc" id="toastDesc">Rekaman tersimpan</div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // --- DOM refs ---
+            const targetUrl = document.getElementById('targetUrl');
+            const fileName = document.getElementById('fileName');
+            const scrollSpeed = document.getElementById('scrollSpeed');
+            const fps = document.getElementById('fps');
+            const startBtn = document.getElementById('startRecord');
+            const stopBtn = document.getElementById('stopRecord');
+            const progressFill = document.getElementById('progressFill');
+            const progressLabel = document.getElementById('progressLabel');
+            const percentDisplay = document.getElementById('percentDisplay');
+            const currentUrlDisplay = document.getElementById('currentUrlDisplay');
+            const historyList = document.getElementById('historyList');
+            const historyCount = document.getElementById('historyCount');
+            const clearBtn = document.getElementById('clearHistory');
+            const storageFill = document.getElementById('storageFill');
+            const storageUsed = document.getElementById('storageUsed');
+            const storageTotal = document.getElementById('storageTotal');
+            const diskFree = document.getElementById('diskFree');
+            const storageLabel = document.getElementById('storageLabel');
+            const storageStatus = document.getElementById('storageStatus');
+            const deviceIndicator = document.getElementById('deviceIndicator');
+            const deviceName = document.getElementById('deviceName');
+            const deviceType = document.getElementById('deviceType');
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastDesc = document.getElementById('toastDesc');
+
+            // --- Constants ---
+            const STORAGE_KEY = 'lumidev_history';
+
+            // --- State ---
+            let historyItems = [];
+            let isRecording = false;
+            let recordInterval = null;
+            let progress = 0;
+            let mediaRecorder = null;
+            let recordedChunks = [];
+            let stream = null;
+
+            // --- Device Detection ---
+            function detectDevice() {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+                const isDesktop = !isMobile && !isTablet;
+
+                let deviceTypeText = 'Desktop';
+                let icon = '💻';
+                let name = 'Lumidev Studio';
+
+                if (isMobile) {
+                    deviceTypeText = 'Mobile';
+                    icon = '📱';
+                    name = 'Lumidev Mobile';
+                } else if (isTablet) {
+                    deviceTypeText = 'Tablet';
+                    icon = '📟';
+                    name = 'Lumidev Tablet';
+                }
+
+                return {
+                    type: deviceTypeText,
+                    icon: icon,
+                    name: name,
+                    isMobile: isMobile,
+                    isTablet: isTablet,
+                    isDesktop: isDesktop
+                };
+            }
+
+            const deviceInfo = detectDevice();
+
+            // Update UI with device info
+            deviceIndicator.innerHTML = `${deviceInfo.icon} ${deviceInfo.type}`;
+            deviceName.textContent = deviceInfo.name;
+            deviceType.textContent = deviceInfo.isMobile ? 'Perangkat Mobile terdeteksi' : 'Server Status: Online';
+
+            // --- Storage Detection using Storage API ---
+            async function detectStorage() {
+                try {
+                    if ('storage' in navigator && 'estimate' in navigator.storage) {
+                        const estimate = await navigator.storage.estimate();
+                        const used = estimate.usage || 0;
+                        const quota = estimate.quota || 0;
+                        const usedGB = (used / (1024 ** 3)).toFixed(2);
+                        const quotaGB = (quota / (1024 ** 3)).toFixed(2);
+                        const percent = quota > 0 ? (used / quota) * 100 : 0;
+
+                        updateStorageUI(usedGB, quotaGB, percent, 'Browser Storage');
+
+                        setInterval(async () => {
+                            try {
+                                const newEstimate = await navigator.storage.estimate();
+                                const newUsed = newEstimate.usage || 0;
+                                const newQuota = newEstimate.quota || 0;
+                                const newUsedGB = (newUsed / (1024 ** 3)).toFixed(2);
+                                const newQuotaGB = (newQuota / (1024 ** 3)).toFixed(2);
+                                const newPercent = newQuota > 0 ? (newUsed / newQuota) * 100 : 0;
+                                updateStorageUI(newUsedGB, newQuotaGB, newPercent, 'Browser Storage');
+                            } catch (e) {
+                                console.warn('Storage update failed:', e);
+                            }
+                        }, 30000);
+
+                        return;
+                    }
+
+                    const localStorageSize = getLocalStorageSize();
+                    const usedGB = (localStorageSize / (1024 ** 3)).toFixed(2);
+                    const quotaGB = '0.50';
+                    const percent = (localStorageSize / (5 * 1024 * 1024)) * 100;
+
+                    updateStorageUI(usedGB, quotaGB, Math.min(percent, 100), 'Local Storage');
+
+                } catch (e) {
+                    console.warn('Storage detection failed:', e);
+                    const localStorageSize = getLocalStorageSize();
+                    const usedGB = (localStorageSize / (1024 ** 3)).toFixed(4);
+                    updateStorageUI(usedGB, '0.01', Math.min((localStorageSize / (5 * 1024 * 1024)) * 100, 100),
+                        'Local Storage');
+                }
+            }
+
+            function getLocalStorageSize() {
+                let total = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        total += localStorage[key].length * 2;
+                    }
+                }
+                return total;
+            }
+
+            function updateStorageUI(used, total, percent, label) {
+                storageUsed.textContent = used + ' GB';
+                storageTotal.textContent = total + ' GB';
+                storageFill.style.width = Math.min(percent, 95) + '%';
+                storageLabel.textContent = label;
+
+                const free = (parseFloat(total) - parseFloat(used)).toFixed(2);
+                diskFree.textContent = 'Sisa: ' + free + ' GB';
+
+                if (percent > 85) {
+                    storageFill.classList.add('warning');
+                    storageStatus.textContent = '⚠️ Hampir Penuh';
+                } else if (percent > 70) {
+                    storageFill.classList.add('warning');
+                    storageStatus.textContent = '⚡ Menengah';
+                } else {
+                    storageFill.classList.remove('warning');
+                    storageStatus.textContent = '✅ Aman';
+                }
+            }
+
+            // --- Toast ---
+            let toastTimeout = null;
+
+            function showToast(title, desc, isError = false) {
+                toastTitle.textContent = title;
+                toastDesc.textContent = desc;
+                toast.style.borderLeft = isError ? '3px solid #ef4444' : '3px solid #34d399';
+                toast.classList.add('show');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            // --- History ---
+            function loadHistory() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        historyItems = JSON.parse(stored);
+                    } else {
+                        historyItems = [];
+                    }
+                } catch (e) {
+                    historyItems = [];
+                }
+                renderHistory();
+            }
+
+            function saveHistory() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(historyItems));
+                } catch (e) {
+                    console.warn('Failed to save history:', e);
+                }
+            }
+
+            function renderHistory() {
+                if (historyItems.length === 0) {
+                    historyList.innerHTML = '<div class="empty-history">Belum ada riwayat rekaman</div>';
+                    historyCount.textContent = '0 rekaman';
+                    return;
+                }
+                historyCount.textContent = historyItems.length + ' rekaman';
+                historyList.innerHTML = historyItems.map((item, idx) => `
+                        <div class="history-item">
+                            <div class="name">
+                                <span class="icon">🎬</span>
+                                <span>${item.name}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <span class="time">${item.time}</span>
+                                <button class="delete-item" data-index="${idx}" title="Hapus">✕</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                document.querySelectorAll('.delete-item').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const idx = parseInt(this.dataset.index);
+                        historyItems.splice(idx, 1);
+                        saveHistory();
+                        renderHistory();
+                        showToast('🗑️ Dihapus', 'Rekaman dihapus dari riwayat');
+                    });
+                });
+            }
+
+            function addHistory(name) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                historyItems.unshift({
+                    name: name || 'rekaman.webm',
+                    time: timeStr,
+                    date: dateStr
+                });
+                if (historyItems.length > 100) historyItems.pop();
+                saveHistory();
+                renderHistory();
+            }
+
+            clearBtn.addEventListener('click', function() {
+                if (historyItems.length === 0) {
+                    showToast('ℹ️ Info', 'Tidak ada riwayat untuk dihapus');
+                    return;
+                }
+                historyItems = [];
+                saveHistory();
+                renderHistory();
+                showToast('🧹 Bersih', 'Semua riwayat dihapus');
+            });
+
+            // --- Update URL display ---
+            targetUrl.addEventListener('input', function() {
+                currentUrlDisplay.textContent = this.value || 'https://lumidev.my.id';
+            });
+
+            // --- Recording ---
+            async function startRecording() {
+                const url = targetUrl.value.trim() || 'https://lumidev.my.id';
+                const name = fileName.value.trim() || 'rekaman.webm';
+                const speed = parseFloat(scrollSpeed.value) || 3;
+                const frameRate = parseInt(fps.value) || 60;
+
+                if (isRecording) return;
+
+                try {
+                    stream = await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            displaySurface: 'browser',
+                            frameRate: { ideal: frameRate }
+                        },
+                        audio: true,
+                        preferCurrentTab: true
+                    });
+
+                    const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+                    let mimeType = mimeTypes.find(mt => MediaRecorder.isTypeSupported(mt)) || 'video/webm';
+
+                    mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: mimeType,
+                        videoBitsPerSecond: 5000000
+                    });
+
+                    recordedChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(recordedChunks, { type: mimeType });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        const finalName = name.endsWith('.webm') ? name : name + '.webm';
+                        a.href = url;
+                        a.download = finalName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        stopRecording(true);
+                        showToast('✅ Rekaman Selesai', `File ${a.download} berhasil disimpan`);
+                        addHistory(a.download);
+
+                        progress = 0;
+                        updateProgress(0);
+                        startBtn.style.display = 'block';
+                        stopBtn.style.display = 'none';
+                        startBtn.disabled = false;
+                        startBtn.textContent = '▶ Mulai Rekam';
+                        isRecording = false;
+                        document.querySelector('.status-badge span:last-child').textContent = 'Ready';
+                        document.querySelector('.status-dot').style.background = '#34d399';
+
+                        detectStorage();
+                    };
+
+                    mediaRecorder.start(1000);
+                    isRecording = true;
+                    startBtn.style.display = 'none';
+                    stopBtn.style.display = 'block';
+                    startBtn.disabled = true;
+                    document.querySelector('.status-badge span:last-child').textContent = 'Recording...';
+                    document.querySelector('.status-dot').style.background = '#ef4444';
+
+                    progress = 0;
+                    updateProgress(0);
+                    recordInterval = setInterval(() => {
+                        if (!isRecording) return;
+                        progress += Math.random() * 4 + 1;
+                        if (progress >= 100) {
+                            progress = 100;
+                            updateProgress(100);
+                            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                                mediaRecorder.stop();
+                            }
+                            clearInterval(recordInterval);
+                        } else {
+                            updateProgress(progress);
+                        }
+                    }, 500);
+
+                    showToast('🎥 Merekam', `Merekam ${url} dengan ${frameRate}FPS`);
+
+                } catch (error) {
+                    console.error('Error starting recording:', error);
+                    showToast('❌ Gagal', error.message || 'Izin layar ditolak', true);
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                    resetRecordingUI();
+                }
+            }
+
+            function updateProgress(val) {
+                const p = Math.min(Math.max(val, 0), 100);
+                progressFill.style.width = p + '%';
+                progressLabel.textContent = Math.round(p) + '%';
+                percentDisplay.textContent = Math.round(p) + '%';
+            }
+
+            function stopRecording(keepUI = false) {
+                if (recordInterval) {
+                    clearInterval(recordInterval);
+                    recordInterval = null;
+                }
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                if (!keepUI) {
+                    resetRecordingUI();
+                }
+                isRecording = false;
+            }
+
+            function resetRecordingUI() {
+                startBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                startBtn.disabled = false;
+                startBtn.textContent = '▶ Mulai Rekam';
+                document.querySelector('.status-badge span:last-child').textContent = 'Ready';
+                document.querySelector('.status-dot').style.background = '#34d399';
+                if (recordInterval) {
+                    clearInterval(recordInterval);
+                    recordInterval = null;
+                }
+                isRecording = false;
+            }
+
+            stopBtn.addEventListener('click', function() {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                } else {
+                    stopRecording();
+                }
+                showToast('⏹ Dihentikan', 'Rekaman dihentikan manual');
+            });
+
+            startBtn.addEventListener('click', function() {
+                startRecording();
+            });
+
+            // --- Init ---
+            loadHistory();
+            detectStorage();
+
+            currentUrlDisplay.textContent = targetUrl.value || 'https://lumidev.my.id';
+
+            console.log('🚀 Lumidev Studio Record siap!');
+            console.log('📱 Device:', deviceInfo.type);
+            console.log('💾 History items:', historyItems.length);
+
+        })();
+    </script>
+
+</body>
+</html>
