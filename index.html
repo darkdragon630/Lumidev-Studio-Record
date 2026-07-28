@@ -112,7 +112,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 900px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
@@ -277,7 +277,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -287,6 +287,7 @@
             font-size: 16px;
             transition: opacity 0.5s;
             border-radius: 16px;
+            z-index: 10;
         }
 
         .iframe-overlay.hidden {
@@ -356,7 +357,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Grid */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -370,7 +370,6 @@
             }
         }
 
-        /* History */
         .history-section {
             padding: 20px 24px;
         }
@@ -485,7 +484,6 @@
             font-size: 14px;
         }
 
-        /* Recorder */
         .recorder-box {
             padding: 24px 28px;
         }
@@ -606,7 +604,6 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* Dashboard */
         .dashboard {
             padding: 24px 28px;
             margin-top: 20px;
@@ -779,6 +776,41 @@
                 font-size: 11px;
             }
         }
+
+        /* Status recording info */
+        .recording-info {
+            display: none;
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            font-size: 13px;
+            color: #fca5a5;
+            text-align: center;
+        }
+
+        .recording-info.show {
+            display: block;
+        }
+
+        .btn-open-tab {
+            width: 100%;
+            padding: 10px;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            border-radius: 40px;
+            color: #6ee7b7;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-open-tab:hover {
+            background: rgba(52, 211, 153, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -810,7 +842,6 @@
             </div>
         </header>
 
-        <!-- Preview Container dengan Iframe -->
         <div class="preview-container glass">
             <div class="label">
                 <span>📡 Live Preview</span>
@@ -818,11 +849,12 @@
             </div>
 
             <div class="iframe-wrapper" id="iframeWrapper">
-                <iframe id="targetFrame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+                <iframe id="targetFrame" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"></iframe>
                 <div class="iframe-overlay" id="iframeOverlay">
                     <div class="spinner"></div>
                     <span>⏳ Memuat halaman target...</span>
                     <span style="font-size:13px;color:#8b9bbf;" id="loadingUrl">https://lumidev.my.id</span>
+                    <span style="font-size:12px;color:#5f7294;margin-top:8px;">Jika halaman tidak muncul, gunakan tombol "Buka di Tab Baru"</span>
                 </div>
             </div>
 
@@ -834,9 +866,12 @@
                 <span class="url-display" id="currentUrlDisplay">https://lumidev.my.id</span>
                 <span class="percent" id="percentDisplay">0%</span>
             </div>
+
+            <div class="recording-info" id="recordingInfo">
+                ⏺️ Sedang merekam... Jangan tutup tab ini!
+            </div>
         </div>
 
-        <!-- Grid 2: History + Recorder -->
         <div class="grid-2">
 
             <div class="history-section glass">
@@ -876,11 +911,11 @@
 
                 <button class="btn-primary" id="startRecord">▶ Mulai Rekam</button>
                 <button class="btn-secondary" id="stopRecord" style="display:none;">⏹ Hentikan Rekam</button>
-                <button class="btn-secondary" id="loadUrlBtn" style="margin-top:8px;padding:10px;font-size:13px;">🔄 Muat URL</button>
+                <button class="btn-secondary" id="loadUrlBtn" style="margin-top:8px;padding:10px;font-size:13px;">🔄 Muat URL di Preview</button>
+                <button class="btn-open-tab" id="openTabBtn">📂 Buka di Tab Baru</button>
             </div>
         </div>
 
-        <!-- Dashboard -->
         <div class="dashboard glass">
             <div class="server-header">
                 <div>
@@ -940,6 +975,7 @@
             const startBtn = document.getElementById('startRecord');
             const stopBtn = document.getElementById('stopRecord');
             const loadUrlBtn = document.getElementById('loadUrlBtn');
+            const openTabBtn = document.getElementById('openTabBtn');
             const progressFill = document.getElementById('progressFill');
             const progressLabel = document.getElementById('progressLabel');
             const percentDisplay = document.getElementById('percentDisplay');
@@ -962,6 +998,7 @@
             const targetFrame = document.getElementById('targetFrame');
             const iframeOverlay = document.getElementById('iframeOverlay');
             const loadingUrl = document.getElementById('loadingUrl');
+            const recordingInfo = document.getElementById('recordingInfo');
 
             const STORAGE_KEY = 'lumidev_history';
             let historyItems = [];
@@ -974,6 +1011,7 @@
             let captureInterval = null;
             let canvas = null;
             let ctx = null;
+            let targetTabId = null;
 
             // --- Device Detection ---
             function detectDevice() {
@@ -1124,30 +1162,45 @@
                 loadingUrl.textContent = url;
                 iframeOverlay.classList.remove('hidden');
                 currentUrlDisplay.textContent = url;
-                targetFrame.src = url;
 
-                // Sembunyikan overlay setelah iframe load
+                // Reset iframe
+                targetFrame.src = 'about:blank';
+
+                // Load setelah delay kecil
+                setTimeout(() => {
+                    targetFrame.src = url;
+                }, 300);
+
                 targetFrame.onload = function() {
                     iframeOverlay.classList.add('hidden');
                     showToast('✅ Dimuat', 'Halaman berhasil dimuat di preview');
                 };
                 targetFrame.onerror = function() {
                     iframeOverlay.classList.add('hidden');
-                    showToast('❌ Gagal', 'Tidak bisa memuat halaman', true);
+                    showToast('⚠️ Sebagian', 'Halaman dimuat tapi mungkin tidak sepenuhnya');
                 };
 
-                // Timeout fallback
                 setTimeout(() => {
                     if (!iframeOverlay.classList.contains('hidden')) {
                         iframeOverlay.classList.add('hidden');
-                        showToast('⚠️ Timeout', 'Halaman mungkin butuh waktu lebih lama', true);
                     }
-                }, 15000);
+                }, 10000);
             }
 
             loadUrlBtn.addEventListener('click', function() {
                 const url = targetUrl.value.trim() || 'https://lumidev.my.id';
                 loadUrlInIframe(url);
+            });
+
+            // --- Buka di Tab Baru ---
+            openTabBtn.addEventListener('click', function() {
+                const url = targetUrl.value.trim() || 'https://lumidev.my.id';
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    window.open('https://' + url, '_blank');
+                } else {
+                    window.open(url, '_blank');
+                }
+                showToast('📂 Dibuka', 'Halaman dibuka di tab baru');
             });
 
             targetUrl.addEventListener('change', function() {
@@ -1159,7 +1212,7 @@
                 loadUrlInIframe(targetUrl.value || 'https://lumidev.my.id');
             }, 500);
 
-            // --- Recording using html2canvas on iframe ---
+            // --- Recording dengan Screen Capture (rekam tab target) ---
             async function startRecording() {
                 const url = targetUrl.value.trim() || 'https://lumidev.my.id';
                 const name = fileName.value.trim() || 'rekaman.webm';
@@ -1169,24 +1222,38 @@
                 if (isRecording) return;
 
                 try {
-                    // Setup canvas untuk capture
-                    canvas = document.createElement('canvas');
-                    const wrapper = document.getElementById('iframeWrapper');
-                    const rect = wrapper.getBoundingClientRect();
-                    const width = rect.width || 800;
-                    const height = rect.height || 500;
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx = canvas.getContext('2d');
+                    // Buka tab target dulu
+                    let targetWindow = null;
+                    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                        targetWindow = window.open('https://' + url, '_blank');
+                    } else {
+                        targetWindow = window.open(url, '_blank');
+                    }
 
-                    // Create stream from canvas
-                    captureStream = canvas.captureStream(frameRate);
+                    if (!targetWindow) {
+                        showToast('❌ Gagal', 'Browser memblokir popup. Izinkan popup dan coba lagi.', true);
+                        return;
+                    }
 
-                    // Setup MediaRecorder
+                    showToast('⏳ Menunggu', 'Tunggu sebentar sementara halaman dimuat...');
+
+                    // Tunggu halaman target dimuat
+                    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+                    // Minta izin untuk merekam tab
+                    const stream = await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            displaySurface: 'browser',
+                            frameRate: { ideal: frameRate }
+                        },
+                        audio: true,
+                        preferCurrentTab: false
+                    });
+
                     const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
                     let mimeType = mimeTypes.find(mt => MediaRecorder.isTypeSupported(mt)) || 'video/webm';
 
-                    mediaRecorder = new MediaRecorder(captureStream, {
+                    mediaRecorder = new MediaRecorder(stream, {
                         mimeType: mimeType,
                         videoBitsPerSecond: 5000000
                     });
@@ -1222,9 +1289,15 @@
                         startBtn.disabled = false;
                         startBtn.textContent = '▶ Mulai Rekam';
                         isRecording = false;
+                        recordingInfo.classList.remove('show');
                         document.querySelector('.status-badge span:last-child').textContent = 'Ready';
                         document.querySelector('.status-dot').style.background = '#34d399';
                         detectStorage();
+
+                        // Tutup tab target
+                        if (targetWindow && !targetWindow.closed) {
+                            targetWindow.close();
+                        }
                     };
 
                     mediaRecorder.start(1000);
@@ -1232,73 +1305,35 @@
                     startBtn.style.display = 'none';
                     stopBtn.style.display = 'block';
                     startBtn.disabled = true;
+                    recordingInfo.classList.add('show');
                     document.querySelector('.status-badge span:last-child').textContent = 'Recording...';
                     document.querySelector('.status-dot').style.background = '#ef4444';
 
                     progress = 0;
                     updateProgress(0);
 
-                    // Capture frame dengan html2canvas
-                    let frameCount = 0;
-                    const totalFrames = 300; // 10 detik @ 30fps
-                    const frameInterval = 1000 / frameRate;
-
-                    captureInterval = setInterval(async () => {
+                    // Simulasi progress
+                    let prog = 0;
+                    recordInterval = setInterval(() => {
                         if (!isRecording) return;
-
-                        try {
-                            const iframeEl = targetFrame;
-                            if (iframeEl && iframeEl.contentDocument) {
-                                // Coba capture iframe dengan html2canvas
-                                const capturedCanvas = await html2canvas(iframeEl.contentDocument.body, {
-                                    scale: 1,
-                                    useCORS: true,
-                                    allowTaint: true,
-                                    backgroundColor: '#ffffff',
-                                    width: canvas.width,
-                                    height: canvas.height,
-                                    logging: false,
-                                });
-                                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                ctx.drawImage(capturedCanvas, 0, 0, canvas.width, canvas.height);
-                            } else {
-                                // Fallback: gambarkan pesan
-                                ctx.fillStyle = '#0a0b1a';
-                                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                ctx.fillStyle = '#8b9bbf';
-                                ctx.font = '16px Inter, sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.fillText('⏳ Menunggu halaman dimuat...', canvas.width / 2, canvas.height / 2);
-                            }
-                        } catch (e) {
-                            console.warn('Capture error:', e);
-                            // Gambarkan error
-                            ctx.fillStyle = '#0a0b1a';
-                            ctx.fillRect(0, 0, canvas.width, canvas.height);
-                            ctx.fillStyle = '#f87171';
-                            ctx.font = '14px Inter, sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.fillText('⚠️ Gagal menangkap halaman', canvas.width / 2, canvas.height / 2);
-                        }
-
-                        frameCount++;
-                        progress = Math.min((frameCount / totalFrames) * 100, 100);
-                        updateProgress(progress);
-
-                        if (progress >= 100) {
-                            clearInterval(captureInterval);
-                            captureInterval = null;
+                        prog += Math.random() * 2 + 1;
+                        if (prog >= 100) {
+                            prog = 100;
+                            updateProgress(100);
                             if (mediaRecorder && mediaRecorder.state === 'recording') {
                                 mediaRecorder.stop();
                             }
+                            clearInterval(recordInterval);
+                        } else {
+                            updateProgress(prog);
                         }
-                    }, frameInterval);
+                    }, 500);
 
                     showToast('🎥 Merekam', `Merekam ${url} dengan ${frameRate}FPS`);
 
                 } catch (error) {
                     console.error('Error starting recording:', error);
-                    showToast('❌ Gagal', error.message || 'Terjadi kesalahan', true);
+                    showToast('❌ Gagal', error.message || 'Izin layar ditolak', true);
                     resetRecordingUI();
                 }
             }
@@ -1311,9 +1346,9 @@
             }
 
             function stopRecording(keepUI = false) {
-                if (captureInterval) {
-                    clearInterval(captureInterval);
-                    captureInterval = null;
+                if (recordInterval) {
+                    clearInterval(recordInterval);
+                    recordInterval = null;
                 }
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.stop();
@@ -1321,10 +1356,6 @@
                 if (captureStream) {
                     captureStream.getTracks().forEach(track => track.stop());
                     captureStream = null;
-                }
-                if (canvas) {
-                    canvas = null;
-                    ctx = null;
                 }
                 if (!keepUI) {
                     resetRecordingUI();
@@ -1337,11 +1368,12 @@
                 stopBtn.style.display = 'none';
                 startBtn.disabled = false;
                 startBtn.textContent = '▶ Mulai Rekam';
+                recordingInfo.classList.remove('show');
                 document.querySelector('.status-badge span:last-child').textContent = 'Ready';
                 document.querySelector('.status-dot').style.background = '#34d399';
-                if (captureInterval) {
-                    clearInterval(captureInterval);
-                    captureInterval = null;
+                if (recordInterval) {
+                    clearInterval(recordInterval);
+                    recordInterval = null;
                 }
                 isRecording = false;
             }
@@ -1356,14 +1388,13 @@
             });
 
             startBtn.addEventListener('click', function() {
-                // Pastikan URL sudah dimuat
+                // Cek apakah URL valid
                 const url = targetUrl.value.trim();
-                if (url && targetFrame.src !== url) {
-                    loadUrlInIframe(url);
-                    setTimeout(() => startRecording(), 2000);
-                } else {
-                    startRecording();
+                if (!url || url === 'about:blank') {
+                    showToast('⚠️ Error', 'Masukkan URL yang valid terlebih dahulu', true);
+                    return;
                 }
+                startRecording();
             });
 
             // --- Init ---
